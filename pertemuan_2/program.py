@@ -1,62 +1,89 @@
 import cv2;
 import numpy as np
+import matplotlib as plt
 
 # read image with color
-def readImage(path, mode):
-    img = cv2.imread(path, mode)
+def readImage(path):
+    img = cv2.imread(path)
     return img
+
+def showImage(img, windowName):
+    cv2.imshow(windowName, img)
 
 def extractRGB(img):
-    blue_channel = img[:, :, 0]
-    green_channel = img[:, :, 1]
-    red_channel = img[:, :, 2]
+    rgb_channel = [img[:, :, 2], img[:, :, 1], img[:, :, 0]]
 
-    channel = [red_channel, blue_channel, green_channel]
+    return rgb_channel
 
-    return channel
+# Weighted Average Method To Convert Color Image To Grayscale
+def weightedAverageGrayscale(img):
+    [R, G, B] = extractRGB(img)
+    Y = (0.299 * R) + (0.587 * G) + (0.114 * B)
 
-def extractRed(img):
-    img[:, :, 0] = 0
-    img[:, :, 1] = 0
-
-    return img
-
-def extractGreen(img):
-    img[:, :, 0] = 0
-    img[:, :, 2] = 0
+    img[:, :, 0] = img[:, :, 1]  = img[:, :, 2] = Y
 
     return img
 
-def extractBlue(img):
-    img[:, :, 1] = 0
-    img[:, :, 2] = 0
+# Luminousity Grayscale Method
+def luminosityGrayscale(img):
+    [R, G, B] = extractRGB(img)
+    Z = 0.2126 * R + 0.7152 * G + 0.0722 * B
 
+    img[:, :, 0] = img[:, :, 1] = img[:, :, 2] = Z
+
+    return img
+
+# Average Grayscale Method
+def averageGrayscale(img):
+    [row, col] = img.shape[0:2]
+
+    for i in range(row):
+        for j in range(col):
+            img[i, j] = sum(img[i, j] * 0.33)
+    
     return img
 
 def convertToGrayscale(img):
-    channel = extractRGB(img)
-    grayscale = (channel[0] + channel[1] + channel[2]) / 3
-    img[:, :, 0] = grayscale
-    img[:, :, 1] = grayscale
-    img[:, :, 2] = grayscale
+    [R, G, B] = extractRGB(img)
+    grayscale = (R + G + B) / 3
+
+    img[:, :, 0] = img[:, :, 1] = img[:, :, 2] = grayscale
 
     return img
 
+
+def detectCircleByColor(img, circle_color):
+    [row, col] = img.shape[0:2]
+
+    for i in range(row):
+        for j in range(col):
+            if(circle_color in img[i, j]):
+                img[i, j] = [0, 0, 255]
+    return img
+
 def main():
-    img = readImage("assets/images/my_pic.jpg", cv2.IMREAD_UNCHANGED)
+    pass
+    # img = readImage("assets/images/lingkaran.jpg", cv2.IMREAD_UNCHANGED)
     # cv2.imshow("image", img)
 
-    channel = extractRGB(img)
-    # print(channel)
+    # [R, G, B] = extractRGB(img)
+    # print(G)
+    
+    # img = detectCircleByColor(img, 0)
+    # cv2.imshow("image", img)
 
-    grayscale = convertToGrayscale(img)
-    cv2.imshow("image", grayscale)
+    # grayscale = convertToGrayscale(img)
+    # grayscale = weightedAverageGrayscale(img)
+    # grayscale = luminosityGrayscale(img)
+    # grayscale = averageGrayscale(img)
+    # grayscale = convertToGrayscale(img)
+    # cv2.imshow("image", grayscale)
 
     # img = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
     # cv2.imshow("image", grayscale)
 
-    cv2.waitKey(0)
-    cv2.destroyAllWindows()
+    # cv2.waitKey(0)
+    # cv2.destroyAllWindows()
 
-main()
+# main()
 
